@@ -1,17 +1,14 @@
-FROM node:lts-alpine
-ENV NODE_ENV=production
-WORKDIR /usr/src/app
-RUN npm cache clean --force
-# Copy files from local machine to virtual directory in docker image
+FROM node:lts-alpine AS build 
+WORKDIR /app
 COPY . .
 RUN npm install
-RUN npm run build --prod
+RUN npm run build
 
 
 
 FROM nginx:latest AS ngi
-
-COPY --from=build /dist/src/app/dist/my-docker-angular-app /usr/share/nginx/html
-COPY /nginx.conf  /etc/nginx/conf.d/default.conf
  
+COPY /nginx.conf  /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/docker-with-angular18/browser /usr/share/nginx/html
+
 EXPOSE 80
